@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Do you love me? 💻</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #fdf0f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Floating hearts background */
+    .hearts-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .heart-float {
+      position: absolute;
+      font-size: 1.5rem;
+      animation: floatUp linear infinite;
+      opacity: 0.15;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(110vh) rotate(0deg); opacity: 0.15; }
+      100% { transform: translateY(-10vh) rotate(20deg); opacity: 0; }
+    }
+
+    /* Pages */
+    .page {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      gap: 2rem;
+      position: relative;
+      z-index: 1;
+      animation: fadeIn 0.6s ease;
+    }
+    .page.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: white;
+      border-radius: 2rem;
+      padding: 3rem 3.5rem;
+      box-shadow: 0 8px 40px rgba(255, 105, 180, 0.15);
+      max-width: 520px;
+      width: 100%;
+    }
+
+    .emoji-big {
+      font-size: 5rem;
+      margin-bottom: 0.5rem;
+      animation: bounce 1.5s ease infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-12px); }
+    }
+
+    h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.2rem;
+      color: #d63384;
+      line-height: 1.3;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 1.1rem;
+      color: #888;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Buttons */
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    .btn {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      padding: 0.8rem 2.2rem;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn:active { transform: scale(0.95); }
+
+    .btn-yes {
+      background: linear-gradient(135deg, #ff6eb4, #d63384);
+      color: white;
+      box-shadow: 0 4px 18px rgba(214, 51, 132, 0.35);
+    }
+    .btn-yes:hover {
+      transform: scale(1.06);
+      box-shadow: 0 6px 24px rgba(214, 51, 132, 0.45);
+    }
+
+    .btn-no {
+      background: #f0f0f0;
+      color: #999;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      position: fixed; /* will be repositioned by JS */
+    }
+
+    .btn-next {
+      background: linear-gradient(135deg, #a78bfa, #7c3aed);
+      color: white;
+      box-shadow: 0 4px 18px rgba(124, 58, 237, 0.35);
+    }
+    .btn-next:hover {
+      transform: scale(1.06);
+      box-shadow: 0 6px 24px rgba(124, 58, 237, 0.45);
+    }
+
+    /* Page 1 specific - no button wrapper */
+    #no-btn {
+      position: absolute;
+    }
+
+    /* Page 3 confetti */
+    .confetti-piece {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      top: -10px;
+      pointer-events: none;
+      z-index: 999;
+      border-radius: 2px;
+      animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* Page 3 badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #f3e8ff;
+      border: 2px solid #c4b5fd;
+      border-radius: 50px;
+      padding: 0.5rem 1.2rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #6d28d9;
+      margin-top: 0.5rem;
+    }
+
+    /* Typewriter on page 2 */
+    .typewriter {
+      overflow: hidden;
+      border-right: 3px solid #d63384;
+      white-space: nowrap;
+      animation: typing 1.2s steps(40, end) forwards, blink 0.7s step-end infinite;
+      font-size: 1rem;
+      color: #aaa;
+      font-style: italic;
+      max-width: 100%;
+    }
+    @keyframes typing {
+      from { width: 0; }
+      to   { width: 100%; }
+    }
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Floating hearts background -->
+<div class="hearts-bg" id="heartsBg"></div>
+
+<!-- PAGE 1 -->
+<div class="page active" id="page1">
+  <div class="card">
+    <div class="emoji-big">🥺</div>
+    <h1>Do you love me?</h1>
+    <p>Think carefully before answering...</p>
+    <div class="btn-group" style="position:relative; height: 60px;">
+      <button class="btn btn-yes" onclick="goToPage2()">Yes 💖</button>
+      <button class="btn btn-no" id="no-btn" onmouseenter="runAway()" onclick="runAway()">No 🙈</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page" id="page2">
+  <div class="card">
+    <div class="emoji-big" style="animation-delay: 0.2s">😱</div>
+    <h1>Wait… you actually said yes?!</h1>
+    <p class="typewriter">"I was so ready for you to say no"</p>
+    <div class="btn-group" style="margin-top: 2rem;">
+      <button class="btn btn-next" onclick="goToPage3()">okay okay &nbsp;→</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page" id="page3">
+  <div class="card">
+    <div class="emoji-big" style="animation-delay: 0.4s">💻</div>
+    <h1>Glad you didn't say no.</h1>
+    <p>Be ready — you now have an IT boyfriend.</p>
+    <div style="margin-top: 1rem;">
+      <span class="badge">🖥️ warning: may debug you at 2am</span>
+    </div>
+    <div style="margin-top: 0.5rem;">
+      <span class="badge">☕ powered by coffee &amp; love</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- Floating hearts background ---
+  const heartsBg = document.getElementById('heartsBg');
+  const heartChars = ['💗', '💕', '💖', '💓', '🤍', '✨'];
+  for (let i = 0; i < 18; i++) {
+    const h = document.createElement('span');
+    h.className = 'heart-float';
+    h.textContent = heartChars[Math.floor(Math.random() * heartChars.length)];
+    h.style.left = Math.random() * 100 + 'vw';
+    h.style.animationDuration = (6 + Math.random() * 10) + 's';
+    h.style.animationDelay = (Math.random() * 8) + 's';
+    h.style.fontSize = (1 + Math.random() * 1.5) + 'rem';
+    heartsBg.appendChild(h);
+  }
+
+  // --- No button run-away logic ---
+  const noBtn = document.getElementById('no-btn');
+  let noMoves = 0;
+
+  function placeNoBtn() {
+    const card = document.querySelector('#page1 .card');
+    const rect = card.getBoundingClientRect();
+    // start position: to the right of yes button
+    noBtn.style.left = (rect.left + rect.width / 2 + 20) + 'px';
+    noBtn.style.top  = (rect.top  + rect.height / 2 + 20) + 'px';
+  }
+  placeNoBtn();
+  window.addEventListener('resize', placeNoBtn);
+
+  function runAway() {
+    noMoves++;
+    const margin = 40;
+    const maxX = window.innerWidth  - noBtn.offsetWidth  - margin;
+    const maxY = window.innerHeight - noBtn.offsetHeight - margin;
+
+    let newX, newY, attempts = 0;
+    do {
+      newX = margin + Math.random() * maxX;
+      newY = margin + Math.random() * maxY;
+      attempts++;
+    } while (attempts < 20 && isTooCloseToYes(newX, newY));
+
+    noBtn.style.transition = 'left 0.2s, top 0.2s';
+    noBtn.style.left = newX + 'px';
+    noBtn.style.top  = newY + 'px';
+
+    // shrink label as user gets frustrated
+    const labels = ['No 🙈', 'Nope!', 'Nah 😅', 'Never!', 'Try again!', 'Noooo!', "Can't catch me!", '😤', '🏃'];
+    noBtn.textContent = labels[Math.min(noMoves - 1, labels.length - 1)];
+  }
+
+  function isTooCloseToYes(x, y) {
+    const yes = document.querySelector('.btn-yes');
+    const r = yes.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top  + r.height / 2;
+    return Math.hypot(x - cx, y - cy) < 140;
+  }
+
+  // --- Page transitions ---
+  function goToPage(from, to) {
+    document.getElementById(from).classList.remove('active');
+    document.getElementById(to).classList.add('active');
+  }
+
+  function goToPage2() { goToPage('page1', 'page2'); }
+
+  function goToPage3() {
+    goToPage('page2', 'page3');
+    launchConfetti();
+  }
+
+  // --- Confetti ---
+  function launchConfetti() {
+    const colors = ['#ff6eb4', '#a78bfa', '#fbbf24', '#34d399', '#60a5fa', '#f87171'];
+    for (let i = 0; i < 80; i++) {
+      setTimeout(() => {
+        const c = document.createElement('div');
+        c.className = 'confetti-piece';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.width  = (6 + Math.random() * 10) + 'px';
+        c.style.height = (6 + Math.random() * 10) + 'px';
+        c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        c.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 5000);
+      }, i * 30);
+    }
+  }
+</script>
+</body>
+</html>
