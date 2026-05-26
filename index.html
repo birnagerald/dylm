@@ -30,11 +30,6 @@
       position: absolute;
       font-size: 1.3rem;
       opacity: 0.55;
-      animation: floatFlower ease-in-out infinite alternate;
-    }
-    @keyframes floatFlower {
-      0%   { transform: translateY(0px) rotate(-8deg); }
-      100% { transform: translateY(-10px) rotate(8deg); }
     }
 
     /* Pages */
@@ -229,8 +224,6 @@
     f.style.left = (2 + Math.random() * 96) + 'vw';
     f.style.top  = (2 + Math.random() * 96) + 'vh';
     f.style.fontSize = (0.8 + Math.random() * 1) + 'rem';
-    f.style.animationDuration = (2 + Math.random() * 3) + 's';
-    f.style.animationDelay = (Math.random() * 3) + 's';
     bg.appendChild(f);
   }
 
